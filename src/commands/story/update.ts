@@ -57,9 +57,7 @@ export default class StoryUpdate extends Command {
     }
 
     const shouldUpdate = await confirm({
-      message: `Update Story ${color.yellow(id)} URL from ${color.red(
-        story.url,
-      )} to ${color.green(url)}?`,
+      message: `Update Story ${color.yellow(id)} URL from ${color.red(story.url)} to ${color.green(url)}?`,
     });
 
     if (!shouldUpdate) {

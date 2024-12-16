@@ -1,15 +1,42 @@
 {
   "compilerOptions": {
-    "target": "es2018",
-    "module": "commonjs",
-    "declaration": true,
-    "outDir": "lib",
-    "rootDir": "src",
-    "strict": true,
-    "noUnusedLocals": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true
+    /* === General Options === */
+    "target": "ES2022",                // Output modern JavaScript for Node.js 16+
+    "module": "Node16",                // Use ES modules compatible with Node.js
+    "moduleResolution": "Node16",      // Node.js module resolution strategy
+    "rootDir": "src",                  // Root directory for source files
+    "outDir": "lib",                   // Output directory for compiled files
+    "declaration": true,               // Generate .d.ts declaration files
+    "declarationMap": true,            // Include source maps for .d.ts files
+    "sourceMap": true,                 // Generate source maps for debugging
+    "strict": true,                    // Enable all strict type-checking options
+    "esModuleInterop": true,           // Simplify importing CommonJS modules
+    "forceConsistentCasingInFileNames": true, // Prevent case-sensitive file path issues
+
+    /* === Type Checking === */
+    "skipLibCheck": true,              // Skip type checking for node_modules
+    "noUnusedLocals": true,            // Report unused local variables
+    "noUnusedParameters": true,        // Report unused function parameters
+    "noImplicitReturns": true,         // Enforce explicit return statements in functions
+    "noFallthroughCasesInSwitch": true, // Disallow fallthrough cases in switch statements
+
+    /* === Import Helpers === */
+    "importHelpers": true,             // Reduce output size by using `tslib`
+    "resolveJsonModule": true,         // Allow importing JSON files
+    "allowSyntheticDefaultImports": true, // Enable default imports for non-ES modules
+    "isolatedModules": true,           // Enable faster builds with tools like esbuild
+
+    /* === Output Formatting === */
+    "pretty": true,                    // Pretty console output
+    "removeComments": false,           // Retain comments in the compiled output
+    "preserveConstEnums": true,        // Keep const enums in the compiled code
+
+    /* === Paths and Aliases === */
+    "baseUrl": ".",                    // Base path for resolving module paths
+    "paths": {
+      "@/*": ["src/*"]                 // Alias to shorten paths (e.g., "@/utils" → "src/utils")
+    }
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*"],             // Include all source files in the src folder
+  "exclude": ["node_modules", "dist", "lib"] // Exclude build artifacts and dependencies
 }

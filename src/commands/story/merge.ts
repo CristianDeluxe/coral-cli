@@ -1,8 +1,8 @@
 import { Command, flags } from "@coralproject/coral-cli-command";
 import color from "@heroku-cli/color";
+import { confirm } from "@inquirer/prompts";
 import { ux } from "@oclif/core";
 import { uniq } from "lodash";
-import { confirm } from "@inquirer/prompts";
 
 import { GetStoryQuery } from "./get";
 

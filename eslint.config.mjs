@@ -1,20 +1,33 @@
+import eslint from "@eslint/js";
+import tseslint from "typescript-eslint";
 import tsParser from "@typescript-eslint/parser";
 import tsPlugin from "@typescript-eslint/eslint-plugin";
 import eslintImport from "eslint-plugin-import";
 import eslintJsxA11y from "eslint-plugin-jsx-a11y";
 import eslintPrettier from "eslint-plugin-prettier";
+import oclifConfig from "eslint-config-oclif";
+import oclifTSConfig from "eslint-config-oclif-typescript";
+import prettierConfig from "eslint-config-prettier";
+import eslintPluginUnicorn from "eslint-plugin-unicorn";
+import perfectionist from "eslint-plugin-perfectionist";
+import jsdoc from "eslint-plugin-jsdoc";
 
 export default [
   {
     ignores: ["node_modules", "dist/", "lib/", "tmp/", ".lintstagedrc.js"],
   },
+  eslint.configs.recommended,
+  ...tseslint.configs.recommended,
+  jsdoc.configs["flat/recommended"],
   {
     files: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
-        ecmaVersion: 2015, // ES6
+        ecmaVersion: "latest", // ES2022
         sourceType: "module",
+        project: "./tsconfig.json", // Align with TypeScript config
+        module: "node16",
         ecmaFeatures: {
           jsx: true,
         },
@@ -25,8 +38,47 @@ export default [
       import: eslintImport,
       jsxA11y: eslintJsxA11y,
       prettier: eslintPrettier,
+      unicorn: eslintPluginUnicorn,
+      perfectionist,
+      jsdoc,
+    },
+    settings: {
+      "import/resolver": {
+        typescript: {
+          alwaysTryTypes: true,
+          project: "./tsconfig.json",
+        },
+      },
     },
     rules: {
+      // Add rules from oclif-typescript and oclif
+      ...oclifConfig.rules,
+      ...oclifTSConfig.rules,
+
+      // Remove valid-jsdoc rules (deprecated) and add new ones (jsdoc)
+      "valid-jsdoc": "off",
+      "jsdoc/require-param": [
+        "warn",
+        {
+          enableFixer: true,
+          checkDestructured: false,
+          checkRestProperty: false,
+        },
+      ],
+      "jsdoc/require-returns": [
+        "warn",
+        {
+          enableFixer: true,
+          checkConstructors: false,
+        },
+      ],
+      "jsdoc/check-param-names": "warn",
+      "jsdoc/require-description": "warn",
+
+      // Other rules
+      ...prettierConfig.rules,
+      "perfectionist/sort-imports": "error",
+
       // TypeScript Rules
       "@typescript-eslint/camelcase": "off",
       "@typescript-eslint/explicit-function-return-type": "off",
@@ -64,6 +116,7 @@ export default [
           trailingComma: "all",
           printWidth: 80,
           semi: true,
+          bracketSpacing: true,
         },
       ],
     },
