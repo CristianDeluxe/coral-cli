@@ -1,5 +1,5 @@
 import { Command, flags } from "@coralproject/coral-cli-command";
-import ux from "cli-ux";
+import { ux } from "@oclif/core";
 
 export default class Logout extends Command {
   public static description = "removes credentials for logging in with Coral";

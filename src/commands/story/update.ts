@@ -1,6 +1,7 @@
 import { Command, flags } from "@coralproject/coral-cli-command";
 import color from "@heroku-cli/color";
-import { cli } from "cli-ux";
+import { confirm } from "@inquirer/prompts";
+import { ux } from "@oclif/core";
 
 export const GetStoryQuery = /* GraphQL */ `
   query GetStoryQuery($id: ID) {
@@ -55,22 +56,24 @@ export default class StoryUpdate extends Command {
       this.error("URL is the same");
     }
 
-    const confirm = await cli.confirm(
-      `Update Story ${color.yellow(id)} URL from ${color.red(
-        story.url
-      )} to ${color.green(url)}?`
-    );
-    if (!confirm) {
+    const shouldUpdate = await confirm({
+      message: `Update Story ${color.yellow(id)} URL from ${color.red(
+        story.url,
+      )} to ${color.green(url)}?`,
+    });
+
+    if (!shouldUpdate) {
+      this.log("Update operation cancelled.");
       return;
     }
 
-    cli.action.start("Updating Story");
+    ux.action.start("Updating Story");
 
     await this.coral(domain).graphql(UpdateStoryMutation, {
       id,
       story: { url },
     });
 
-    cli.action.stop();
+    ux.action.stop();
   }
 }

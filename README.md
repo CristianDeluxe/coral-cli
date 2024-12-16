@@ -22,8 +22,8 @@ CLI to interact with Coral
 $ npm install -g @coralproject/coral-cli
 $ coral-cli COMMAND
 running command...
-$ coral-cli (-v|--version|version)
-@coralproject/coral-cli/0.5.0 darwin-x64 node-v12.20.1
+$ coral-cli (--version)
+@coralproject/coral-cli/0.6.0 darwin-arm64 node-v23.4.0
 $ coral-cli --help [COMMAND]
 USAGE
   $ coral-cli COMMAND
@@ -41,9 +41,14 @@ All commands require the `domain` where your instance of Coral is installed. Whe
 * [`coral-cli login`](#coral-cli-login)
 * [`coral-cli logout`](#coral-cli-logout)
 * [`coral-cli plugins`](#coral-cli-plugins)
-* [`coral-cli plugins:install PLUGIN...`](#coral-cli-pluginsinstall-plugin)
-* [`coral-cli plugins:link PLUGIN`](#coral-cli-pluginslink-plugin)
-* [`coral-cli plugins:uninstall PLUGIN...`](#coral-cli-pluginsuninstall-plugin)
+* [`coral-cli plugins:add PLUGIN`](#coral-cli-pluginsadd-plugin)
+* [`coral-cli plugins:inspect PLUGIN...`](#coral-cli-pluginsinspect-plugin)
+* [`coral-cli plugins:install PLUGIN`](#coral-cli-pluginsinstall-plugin)
+* [`coral-cli plugins:link PATH`](#coral-cli-pluginslink-path)
+* [`coral-cli plugins:remove [PLUGIN]`](#coral-cli-pluginsremove-plugin)
+* [`coral-cli plugins:reset`](#coral-cli-pluginsreset)
+* [`coral-cli plugins:uninstall [PLUGIN]`](#coral-cli-pluginsuninstall-plugin)
+* [`coral-cli plugins:unlink [PLUGIN]`](#coral-cli-pluginsunlink-plugin)
 * [`coral-cli plugins:update`](#coral-cli-pluginsupdate)
 * [`coral-cli scraper:debug`](#coral-cli-scraperdebug)
 * [`coral-cli story:get`](#coral-cli-storyget)
@@ -55,20 +60,23 @@ All commands require the `domain` where your instance of Coral is installed. Whe
 
 ## `coral-cli help [COMMAND]`
 
-display help for coral-cli
+Display help for coral-cli.
 
 ```
 USAGE
-  $ coral-cli help [COMMAND]
+  $ coral-cli help [COMMAND...] [-n]
 
 ARGUMENTS
-  COMMAND  command to show help for
+  COMMAND...  Command to show help for.
 
-OPTIONS
-  --all  see all commands in CLI
+FLAGS
+  -n, --nested-commands  Include all nested commands in the output.
+
+DESCRIPTION
+  Display help for coral-cli.
 ```
 
-_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v3.2.1/src/commands/help.ts)_
+_See code: [@oclif/plugin-help](https://github.com/oclif/plugin-help/blob/v6.2.19/src/commands/help.ts)_
 
 ## `coral-cli login`
 
@@ -76,13 +84,16 @@ grabs a token for interacting with Coral
 
 ```
 USAGE
-  $ coral-cli login
+  $ coral-cli login -d <value>
 
-OPTIONS
-  -d, --domain=domain  (required) domain for tenant to run command against
+FLAGS
+  -d, --domain=<value>  (required) domain for tenant to run command against
+
+DESCRIPTION
+  grabs a token for interacting with Coral
 ```
 
-_See code: [src/commands/login.ts](https://github.com/coralproject/coral-cli/blob/v0.5.0/src/commands/login.ts)_
+_See code: [src/commands/login.ts](https://github.com/coralproject/coral-cli/blob/v0.6.0/src/commands/login.ts)_
 
 ## `coral-cli logout`
 
@@ -90,130 +101,306 @@ removes credentials for logging in with Coral
 
 ```
 USAGE
-  $ coral-cli logout
+  $ coral-cli logout -d <value>
 
-OPTIONS
-  -d, --domain=domain  (required) domain for tenant to run command against
+FLAGS
+  -d, --domain=<value>  (required) domain for tenant to run command against
+
+DESCRIPTION
+  removes credentials for logging in with Coral
 ```
 
-_See code: [src/commands/logout.ts](https://github.com/coralproject/coral-cli/blob/v0.5.0/src/commands/logout.ts)_
+_See code: [src/commands/logout.ts](https://github.com/coralproject/coral-cli/blob/v0.6.0/src/commands/logout.ts)_
 
 ## `coral-cli plugins`
 
-list installed plugins
+List installed plugins.
 
 ```
 USAGE
-  $ coral-cli plugins
+  $ coral-cli plugins [--json] [--core]
 
-OPTIONS
-  --core  show core plugins
+FLAGS
+  --core  Show core plugins.
 
-EXAMPLE
-  $ coral-cli plugins
-```
-
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v1.9.5/src/commands/plugins/index.ts)_
-
-## `coral-cli plugins:install PLUGIN...`
-
-installs a plugin into the CLI
-
-```
-USAGE
-  $ coral-cli plugins:install PLUGIN...
-
-ARGUMENTS
-  PLUGIN  plugin to install
-
-OPTIONS
-  -f, --force    yarn install with force flag
-  -h, --help     show CLI help
-  -v, --verbose
+GLOBAL FLAGS
+  --json  Format output as json.
 
 DESCRIPTION
-  Can be installed from npm or a git url.
+  List installed plugins.
+
+EXAMPLES
+  $ coral-cli plugins
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.22/src/commands/plugins/index.ts)_
+
+## `coral-cli plugins:add PLUGIN`
+
+Installs a plugin into coral-cli.
+
+```
+USAGE
+  $ coral-cli plugins:add PLUGIN... [--json] [-f] [-h] [-s | -v]
+
+ARGUMENTS
+  PLUGIN...  Plugin to install.
+
+FLAGS
+  -f, --force    Force npm to fetch remote resources even if a local copy exists on disk.
+  -h, --help     Show CLI help.
+  -s, --silent   Silences npm output.
+  -v, --verbose  Show verbose npm output.
+
+GLOBAL FLAGS
+  --json  Format output as json.
+
+DESCRIPTION
+  Installs a plugin into coral-cli.
+
+  Uses npm to install plugins.
 
   Installation of a user-installed plugin will override a core plugin.
 
-  e.g. If you have a core plugin that has a 'hello' command, installing a user-installed plugin with a 'hello' command 
-  will override the core plugin implementation. This is useful if a user needs to update core plugin functionality in 
-  the CLI without the need to patch and update the whole CLI.
+  Use the CORAL_CLI_NPM_LOG_LEVEL environment variable to set the npm loglevel.
+  Use the CORAL_CLI_NPM_REGISTRY environment variable to set the npm registry.
 
 ALIASES
   $ coral-cli plugins:add
 
 EXAMPLES
-  $ coral-cli plugins:install myplugin 
-  $ coral-cli plugins:install https://github.com/someuser/someplugin
-  $ coral-cli plugins:install someuser/someplugin
+  Install a plugin from npm registry.
+
+    $ coral-cli plugins:add myplugin
+
+  Install a plugin from a github url.
+
+    $ coral-cli plugins:add https://github.com/someuser/someplugin
+
+  Install a plugin from a github slug.
+
+    $ coral-cli plugins:add someuser/someplugin
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v1.9.5/src/commands/plugins/install.ts)_
+## `coral-cli plugins:inspect PLUGIN...`
 
-## `coral-cli plugins:link PLUGIN`
-
-links a plugin into the CLI for development
+Displays installation properties of a plugin.
 
 ```
 USAGE
-  $ coral-cli plugins:link PLUGIN
+  $ coral-cli plugins:inspect PLUGIN...
+
+ARGUMENTS
+  PLUGIN...  [default: .] Plugin to inspect.
+
+FLAGS
+  -h, --help     Show CLI help.
+  -v, --verbose
+
+GLOBAL FLAGS
+  --json  Format output as json.
+
+DESCRIPTION
+  Displays installation properties of a plugin.
+
+EXAMPLES
+  $ coral-cli plugins:inspect myplugin
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.22/src/commands/plugins/inspect.ts)_
+
+## `coral-cli plugins:install PLUGIN`
+
+Installs a plugin into coral-cli.
+
+```
+USAGE
+  $ coral-cli plugins:install PLUGIN... [--json] [-f] [-h] [-s | -v]
+
+ARGUMENTS
+  PLUGIN...  Plugin to install.
+
+FLAGS
+  -f, --force    Force npm to fetch remote resources even if a local copy exists on disk.
+  -h, --help     Show CLI help.
+  -s, --silent   Silences npm output.
+  -v, --verbose  Show verbose npm output.
+
+GLOBAL FLAGS
+  --json  Format output as json.
+
+DESCRIPTION
+  Installs a plugin into coral-cli.
+
+  Uses npm to install plugins.
+
+  Installation of a user-installed plugin will override a core plugin.
+
+  Use the CORAL_CLI_NPM_LOG_LEVEL environment variable to set the npm loglevel.
+  Use the CORAL_CLI_NPM_REGISTRY environment variable to set the npm registry.
+
+ALIASES
+  $ coral-cli plugins:add
+
+EXAMPLES
+  Install a plugin from npm registry.
+
+    $ coral-cli plugins:install myplugin
+
+  Install a plugin from a github url.
+
+    $ coral-cli plugins:install https://github.com/someuser/someplugin
+
+  Install a plugin from a github slug.
+
+    $ coral-cli plugins:install someuser/someplugin
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.22/src/commands/plugins/install.ts)_
+
+## `coral-cli plugins:link PATH`
+
+Links a plugin into the CLI for development.
+
+```
+USAGE
+  $ coral-cli plugins:link PATH [-h] [--install] [-v]
 
 ARGUMENTS
   PATH  [default: .] path to plugin
 
-OPTIONS
-  -h, --help     show CLI help
+FLAGS
+  -h, --help          Show CLI help.
   -v, --verbose
+      --[no-]install  Install dependencies after linking the plugin.
 
 DESCRIPTION
+  Links a plugin into the CLI for development.
+
   Installation of a linked plugin will override a user-installed or core plugin.
 
-  e.g. If you have a user-installed or core plugin that has a 'hello' command, installing a linked plugin with a 'hello' 
+  e.g. If you have a user-installed or core plugin that has a 'hello' command, installing a linked plugin with a 'hello'
   command will override the user-installed or core plugin implementation. This is useful for development work.
 
-EXAMPLE
+
+EXAMPLES
   $ coral-cli plugins:link myplugin
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v1.9.5/src/commands/plugins/link.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.22/src/commands/plugins/link.ts)_
 
-## `coral-cli plugins:uninstall PLUGIN...`
+## `coral-cli plugins:remove [PLUGIN]`
 
-removes a plugin from the CLI
+Removes a plugin from the CLI.
 
 ```
 USAGE
-  $ coral-cli plugins:uninstall PLUGIN...
+  $ coral-cli plugins:remove [PLUGIN...] [-h] [-v]
 
 ARGUMENTS
-  PLUGIN  plugin to uninstall
+  PLUGIN...  plugin to uninstall
 
-OPTIONS
-  -h, --help     show CLI help
+FLAGS
+  -h, --help     Show CLI help.
   -v, --verbose
+
+DESCRIPTION
+  Removes a plugin from the CLI.
 
 ALIASES
   $ coral-cli plugins:unlink
   $ coral-cli plugins:remove
+
+EXAMPLES
+  $ coral-cli plugins:remove myplugin
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v1.9.5/src/commands/plugins/uninstall.ts)_
+## `coral-cli plugins:reset`
 
-## `coral-cli plugins:update`
-
-update installed plugins
+Remove all user-installed and linked plugins.
 
 ```
 USAGE
-  $ coral-cli plugins:update
+  $ coral-cli plugins:reset [--hard] [--reinstall]
 
-OPTIONS
-  -h, --help     show CLI help
-  -v, --verbose
+FLAGS
+  --hard       Delete node_modules and package manager related files in addition to uninstalling plugins.
+  --reinstall  Reinstall all plugins after uninstalling.
 ```
 
-_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v1.9.5/src/commands/plugins/update.ts)_
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.22/src/commands/plugins/reset.ts)_
+
+## `coral-cli plugins:uninstall [PLUGIN]`
+
+Removes a plugin from the CLI.
+
+```
+USAGE
+  $ coral-cli plugins:uninstall [PLUGIN...] [-h] [-v]
+
+ARGUMENTS
+  PLUGIN...  plugin to uninstall
+
+FLAGS
+  -h, --help     Show CLI help.
+  -v, --verbose
+
+DESCRIPTION
+  Removes a plugin from the CLI.
+
+ALIASES
+  $ coral-cli plugins:unlink
+  $ coral-cli plugins:remove
+
+EXAMPLES
+  $ coral-cli plugins:uninstall myplugin
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.22/src/commands/plugins/uninstall.ts)_
+
+## `coral-cli plugins:unlink [PLUGIN]`
+
+Removes a plugin from the CLI.
+
+```
+USAGE
+  $ coral-cli plugins:unlink [PLUGIN...] [-h] [-v]
+
+ARGUMENTS
+  PLUGIN...  plugin to uninstall
+
+FLAGS
+  -h, --help     Show CLI help.
+  -v, --verbose
+
+DESCRIPTION
+  Removes a plugin from the CLI.
+
+ALIASES
+  $ coral-cli plugins:unlink
+  $ coral-cli plugins:remove
+
+EXAMPLES
+  $ coral-cli plugins:unlink myplugin
+```
+
+## `coral-cli plugins:update`
+
+Update installed plugins.
+
+```
+USAGE
+  $ coral-cli plugins:update [-h] [-v]
+
+FLAGS
+  -h, --help     Show CLI help.
+  -v, --verbose
+
+DESCRIPTION
+  Update installed plugins.
+```
+
+_See code: [@oclif/plugin-plugins](https://github.com/oclif/plugin-plugins/blob/v5.4.22/src/commands/plugins/update.ts)_
 
 ## `coral-cli scraper:debug`
 
@@ -221,14 +408,17 @@ displays the metadata that Coral was able to scrape from the given URL
 
 ```
 USAGE
-  $ coral-cli scraper:debug
+  $ coral-cli scraper:debug -d <value> --url <value>
 
-OPTIONS
-  -d, --domain=domain  (required) domain for tenant to run command against
-  --url=url            (required)
+FLAGS
+  -d, --domain=<value>  (required) domain for tenant to run command against
+      --url=<value>     (required)
+
+DESCRIPTION
+  displays the metadata that Coral was able to scrape from the given URL
 ```
 
-_See code: [src/commands/scraper/debug.ts](https://github.com/coralproject/coral-cli/blob/v0.5.0/src/commands/scraper/debug.ts)_
+_See code: [src/commands/scraper/debug.ts](https://github.com/coralproject/coral-cli/blob/v0.6.0/src/commands/scraper/debug.ts)_
 
 ## `coral-cli story:get`
 
@@ -236,15 +426,18 @@ fetches a story
 
 ```
 USAGE
-  $ coral-cli story:get
+  $ coral-cli story:get -d <value> [--id <value> | --url <value>]
 
-OPTIONS
-  -d, --domain=domain  (required) domain for tenant to run command against
-  --id=id              find a story by ID
-  --url=url            find a story by URL
+FLAGS
+  -d, --domain=<value>  (required) domain for tenant to run command against
+      --id=<value>      find a story by ID
+      --url=<value>     find a story by URL
+
+DESCRIPTION
+  fetches a story
 ```
 
-_See code: [src/commands/story/get.ts](https://github.com/coralproject/coral-cli/blob/v0.5.0/src/commands/story/get.ts)_
+_See code: [src/commands/story/get.ts](https://github.com/coralproject/coral-cli/blob/v0.6.0/src/commands/story/get.ts)_
 
 ## `coral-cli story:merge`
 
@@ -252,15 +445,18 @@ merge stories and their comments into a single story
 
 ```
 USAGE
-  $ coral-cli story:merge
+  $ coral-cli story:merge -d <value> --from <value>... --into <value>
 
-OPTIONS
-  -d, --domain=domain  (required) domain for tenant to run command against
-  --from=from          (required) source Story ID that will be merged from
-  --into=into          (required) destination Story ID that will be merged into
+FLAGS
+  -d, --domain=<value>   (required) domain for tenant to run command against
+      --from=<value>...  (required) source Story ID that will be merged from
+      --into=<value>     (required) destination Story ID that will be merged into
+
+DESCRIPTION
+  merge stories and their comments into a single story
 ```
 
-_See code: [src/commands/story/merge.ts](https://github.com/coralproject/coral-cli/blob/v0.5.0/src/commands/story/merge.ts)_
+_See code: [src/commands/story/merge.ts](https://github.com/coralproject/coral-cli/blob/v0.6.0/src/commands/story/merge.ts)_
 
 ## `coral-cli story:update`
 
@@ -268,15 +464,18 @@ update stories metadata
 
 ```
 USAGE
-  $ coral-cli story:update
+  $ coral-cli story:update -d <value> --id <value> --url <value>
 
-OPTIONS
-  -d, --domain=domain  (required) domain for tenant to run command against
-  --id=id              (required) the ID of the story to update
-  --url=url            (required) the new URL to update the story to
+FLAGS
+  -d, --domain=<value>  (required) domain for tenant to run command against
+      --id=<value>      (required) the ID of the story to update
+      --url=<value>     (required) the new URL to update the story to
+
+DESCRIPTION
+  update stories metadata
 ```
 
-_See code: [src/commands/story/update.ts](https://github.com/coralproject/coral-cli/blob/v0.5.0/src/commands/story/update.ts)_
+_See code: [src/commands/story/update.ts](https://github.com/coralproject/coral-cli/blob/v0.6.0/src/commands/story/update.ts)_
 
 ## `coral-cli token:create`
 
@@ -284,15 +483,18 @@ creates tokens on the current user
 
 ```
 USAGE
-  $ coral-cli token:create
+  $ coral-cli token:create -d <value> --name <value> [--json]
 
-OPTIONS
-  -d, --domain=domain  (required) domain for tenant to run command against
-  --json               will write output as json
-  --name=name          (required) name of the token
+FLAGS
+  -d, --domain=<value>  (required) domain for tenant to run command against
+      --json            will write output as json
+      --name=<value>    (required) name of the token
+
+DESCRIPTION
+  creates tokens on the current user
 ```
 
-_See code: [src/commands/token/create.ts](https://github.com/coralproject/coral-cli/blob/v0.5.0/src/commands/token/create.ts)_
+_See code: [src/commands/token/create.ts](https://github.com/coralproject/coral-cli/blob/v0.6.0/src/commands/token/create.ts)_
 
 ## `coral-cli token:list`
 
@@ -300,14 +502,17 @@ lists tokens on the current user
 
 ```
 USAGE
-  $ coral-cli token:list
+  $ coral-cli token:list -d <value> [--json]
 
-OPTIONS
-  -d, --domain=domain  (required) domain for tenant to run command against
-  --json               will write output as json
+FLAGS
+  -d, --domain=<value>  (required) domain for tenant to run command against
+      --json            will write output as json
+
+DESCRIPTION
+  lists tokens on the current user
 ```
 
-_See code: [src/commands/token/list.ts](https://github.com/coralproject/coral-cli/blob/v0.5.0/src/commands/token/list.ts)_
+_See code: [src/commands/token/list.ts](https://github.com/coralproject/coral-cli/blob/v0.6.0/src/commands/token/list.ts)_
 
 ## `coral-cli token:revoke`
 
@@ -315,12 +520,15 @@ revokes tokens on the current user
 
 ```
 USAGE
-  $ coral-cli token:revoke
+  $ coral-cli token:revoke -d <value> --id <value>
 
-OPTIONS
-  -d, --domain=domain  (required) domain for tenant to run command against
-  --id=id              (required) id of the token to revoke
+FLAGS
+  -d, --domain=<value>  (required) domain for tenant to run command against
+      --id=<value>      (required) id of the token to revoke
+
+DESCRIPTION
+  revokes tokens on the current user
 ```
 
-_See code: [src/commands/token/revoke.ts](https://github.com/coralproject/coral-cli/blob/v0.5.0/src/commands/token/revoke.ts)_
+_See code: [src/commands/token/revoke.ts](https://github.com/coralproject/coral-cli/blob/v0.6.0/src/commands/token/revoke.ts)_
 <!-- commandsstop -->

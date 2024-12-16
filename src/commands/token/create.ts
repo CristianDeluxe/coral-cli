@@ -34,7 +34,7 @@ export default class TokenCreate extends Command {
     });
 
     if (json) {
-      console.log(JSON.stringify(createToken, null, 2));
+      this.log(JSON.stringify(createToken, null, 2));
     } else {
       const { token, signedToken } = createToken;
 

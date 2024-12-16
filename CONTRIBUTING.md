@@ -4,7 +4,7 @@ Welcome! We are very excited that you are interested in contributing to Coral.
 
 ## Releasing
 
-When you're ready to release a new vesrion of `@coralproject/coral-cli`,
+When you're ready to release a new version of `@coralproject/coral-cli`,
 you can do the following:
 
 1. Run `npm version --no-git-tag-version (major|minor|patch)` to update the

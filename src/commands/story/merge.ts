@@ -1,7 +1,8 @@
 import { Command, flags } from "@coralproject/coral-cli-command";
 import color from "@heroku-cli/color";
-import { cli } from "cli-ux";
+import { ux } from "@oclif/core";
 import { uniq } from "lodash";
+import { confirm } from "@inquirer/prompts";
 
 import { GetStoryQuery } from "./get";
 
@@ -52,7 +53,7 @@ export default class StoryMerge extends Command {
     }
 
     const stories = await Promise.all(
-      storyIDs.map((id) => client.graphql(GetStoryQuery, { id }))
+      storyIDs.map((id) => client.graphql(GetStoryQuery, { id })),
     );
 
     const missing = stories.reduce((ids, { data: { story } }, idx) => {
@@ -66,22 +67,24 @@ export default class StoryMerge extends Command {
       this.error(`Could not find stories with IDs: ${missing.join(", ")}`);
     }
 
-    const confirm = await cli.confirm(
-      `Do you want to merge stories with ID's ${color.yellow(
-        sourceIDs.join(", ")
-      )} into ${color.yellow(destinationID)}?`
-    );
-    if (!confirm) {
+    const shouldMerge = await confirm({
+      message: `Do you want to merge stories with ID's ${color.yellow(
+        sourceIDs.join(", "),
+      )} into ${color.yellow(destinationID)}?`,
+    });
+
+    if (!shouldMerge) {
+      this.log("Merge operation cancelled.");
       return;
     }
 
-    cli.action.start("Merging stories");
+    ux.action.start("Merging stories");
 
     await client.graphql(MergeStoriesMutation, {
       sourceIDs,
       destinationID,
     });
 
-    cli.action.stop();
+    ux.action.stop();
   }
 }

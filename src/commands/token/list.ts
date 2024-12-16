@@ -1,5 +1,5 @@
 import { Command, flags } from "@coralproject/coral-cli-command";
-import { cli } from "cli-ux";
+import TtyTable from "tty-table";
 
 export const ListTokenQuery = /* GraphQL */ `
   query ListTokenQuery {
@@ -31,19 +31,24 @@ export default class TokenList extends Command {
     } = await this.coral(domain).graphql(ListTokenQuery);
 
     if (json) {
-      console.log(JSON.stringify(viewer.tokens, null, 2));
+      this.log(JSON.stringify(viewer.tokens, null, 2));
     } else {
-      cli.table(viewer.tokens, {
-        id: {
-          header: "ID",
-        },
-        name: {
-          header: "Name",
-        },
-        createdAt: {
-          header: "Created At",
-        },
-      });
+      const header = [
+        { value: "id", alias: "ID", align: "left" },
+        { value: "name", alias: "Name", align: "left" },
+        { value: "createdAt", alias: "Created At", align: "left" },
+      ];
+
+      const rows = viewer.tokens.map(
+        (token: { id: string; name: string; createdAt: string }) => [
+          token.id,
+          token.name,
+          token.createdAt,
+        ],
+      );
+
+      const table = TtyTable(header, rows);
+      this.log(table.render());
     }
   }
 }

@@ -1,6 +1,12 @@
+**/.DS_Store
+*-debug.log
+*-error.log
+*.tsbuildinfo
+.idea
 /dist
 /lib
 /tmp
-yarn.lock
 node_modules
 oclif.manifest.json
+pnpm-lock.yaml
+yarn.lock

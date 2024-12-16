@@ -6,7 +6,7 @@ updates:
     schedule:
       interval: "weekly"
 
-  # Update Github Actions if they're found daily.
+  # Update GitHub Actions if they're found daily.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
