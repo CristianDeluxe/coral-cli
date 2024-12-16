@@ -11,7 +11,7 @@ you can do the following:
    version number in package files.
 2. Push the changes to a new branch, and submit a PR against `main`.
 3. Once the changes have been approved, and all the code you want to deploy for
-   the version is in `main`, create a release with the version number: `v0.4.0`
+   the version is in `main`, create a release with the version number: `v0.6.0`
    (Note that the `v` prefix is required)
 
 CircleCI will run your tests and release the new version for you.
